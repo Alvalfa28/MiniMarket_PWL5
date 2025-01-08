@@ -35,21 +35,22 @@ class UserSeeder extends Seeder
         $owner->assignRole('owner'); 
 
         $roleAlias = [
-            'manager' => 'mg',
-            'supervisor' => 'sv',
-            'cashier' => 'kr',
-            'warehouse' => 'wh'
+            'manager',
+            'supervisor',
+            'cashier',
+            'warehouse'
         ];
 
         foreach (range(1, 5) as $branchNumber) {
             $branchId = 'cb' . $branchNumber; 
 
-            foreach ($roleAlias as $role => $alias) {
+            foreach ($roleAlias as $role) {
                 $user = UserStore::create([
                     'nama_user' => $faker->name, 
                     'peran' => $role,
-                    'email' => $role . '.' . $branchId . '@minimarket.com',
-                    'password' => Hash::make($role . $branchId),
+                    'email' => $role . $branchId . '@minimarket.com',
+                    // 'password' => Hash::make($role . $branchId),
+                    'password' => Hash::make('password'),
                     'id_cabang' => $branchId,
                 ]);
                 $user->assignRole($role);

@@ -17,13 +17,13 @@ class BranchSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        BranchModel::create([
-            'id_cabang' => 'pst',
-            'nama_cabang' => 'Pusat JayuSmart',
-            'alias'=>'Pusat',
-            'telepon' => '087391273441',
-            'alamat' => 'Jalan Siliwangi No.8, Cianjur Kota',
-        ]);
+        // BranchModel::create([
+        //     'id_cabang' => 'pst',
+        //     'nama_cabang' => 'Pusat JayuSmart',
+        //     'alias'=>'Pusat',
+        //     'telepon' => '087391273441',
+        //     'alamat' => 'Jalan Siliwangi No.8, Cianjur Kota',
+        // ]);
 
 
         for ($i = 1; $i <= 5; $i++) {

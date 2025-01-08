@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BranchModel;
 use App\Models\StokModel;
 use App\Models\TransaksiModel;
+use App\Models\UserStore;
 use Illuminate\Http\Request;
 // use App\Models\ProdukModel;
 
@@ -39,6 +40,7 @@ class BranchController extends Controller
             }
         }
 
+        $role = 'owner';
         return view('dashboard', compact('branches', 'branch', 'totalProduk', 'totalPenjualan'));
     }
 
@@ -54,6 +56,23 @@ class BranchController extends Controller
         return view('owner.dashboard', compact('branch')); 
     }
 
+    public function dashboardRole(Request $request)
+    {
+        $userRole = auth()->user()->peran; 
+        $branchId = auth()->user()->id_cabang; 
+        $branch = BranchModel::where('id_cabang', $branchId)->first();
+        // dd($userRole);
+        // dd($branchId);
+        $view = match ($userRole) {
+            'manager' => 'dashboard.manager',
+            'supervisor' => 'dashboard.supervisor',
+            'cashier' => 'dashboard.cashier',
+            'warehouse' => 'dashboard.warehouse',
+        };
+        // dd($view); 
+        return view($view,  compact('userRole', 'branch'));
+    }
+
         public function showStock($branchId)
     {
         $branch = BranchModel::findOrFail($branchId);
@@ -64,7 +83,34 @@ class BranchController extends Controller
         return view('stok.index', compact('branch', 'stocks'));
     }
 
-        public function showTransaction($branchId)
+    public function redirectDashboard()
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            abort(403, 'User not authenticated.');
+        }
+
+        $role = strtolower($user->peran ?? '');
+
+        switch ($role) {
+            case 'owner':
+                return redirect()->route('dashboard.owner'); 
+            case 'manager':
+                return redirect()->route('dashboard.manager'); 
+            case 'supervisor':
+                return redirect()->route('dashboard.supervisor'); 
+            case 'cashier':
+                return redirect()->route('dashboard.cashier'); 
+            case 'warehouse':
+                return redirect()->route('dashboard.warehouse'); 
+            default:
+                abort(403, 'Unauthorized role.');
+        }
+    }
+
+
+    public function showTransaction($branchId)
     {
         $branch = BranchModel::findOrFail($branchId);
         $transactions = TransaksiModel::with('kasir', 'transaksiDetail.produk.kategori')
@@ -78,5 +124,18 @@ class BranchController extends Controller
     {
         $branches = BranchModel::with('usersStore')->get();
         return view('owner.informasi', compact('branches'));
+    }
+
+    public function informationBranchRole()
+    {
+        $userRole = auth()->user()->peran; 
+        $branchId = auth()->user()->id_cabang; 
+        $branch = BranchModel::with('usersStore')->where('id_cabang', $branchId)->first();
+    
+        if (!$branch) {
+            abort(404, 'Cabang tidak ditemukan.');
+        }
+    
+        return view('dashboard.informasiUser', compact('branch'));
     }
 }

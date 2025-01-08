@@ -18,11 +18,17 @@ Route::get('/', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/manager/dashboard/{branchId}', [DashboardController::class, 'managerDashboard'])->name('manager.dashboard');
-//     Route::get('/supervisor/dashboard/{branchId}', [DashboardController::class, 'supervisorDashboard'])->name('supervisor.dashboard');
-//     Route::get('/cashier/dashboard/{branchId}', [DashboardController::class, 'cashierDashboard'])->name('cashier.dashboard');
-// });
+
+Route::middleware(['auth'])->group(function() {
+    Route::get('/dashboard', [BranchController::class, 'redirectDashboard'])->name('dashboard');
+    Route::get('/dashboard/owner', [BranchController::class, 'dashboardOwner'])->name('dashboard.owner'); 
+    Route::get('/dashboard/manager', [BranchController::class, 'dashboardRole'])->name('dashboard.manager');
+    Route::get('/dashboard/informasi-cabang', [BranchController::class, 'informationBranchRole'])->name('manager.informasi_cabang');
+    Route::get('/dashboard/supervisor', [BranchController::class, 'dashboardRole'])->name('dashboard.supervisor');
+    Route::get('/dashboard/cashier', [BranchController::class, 'dashboardRole'])->name('dashboard.cashier'); 
+    Route::get('/dashboard/warehouse', [BranchController::class, 'dashboardRole'])->name('dashboard.warehouse'); 
+});
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -31,8 +37,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', RoleMiddleware::class . ':owner'])->group(function () {
-    Route::get('/dashboard', [BranchController::class, 'dashboardOwner'])->name('dashboard');
-    
+    // Route::get('/dashboard', [BranchController::class, 'dashboardOwner'])->name('dashboard');
     Route::get('/dashboard/{branchId}', [BranchController::class, 'dashboard'])->name('owner.dashboard');
     Route::get('/stok/{branchId?}', [BranchController::class, 'showStock'])->name('stock.show');
     Route::get('/transaksi/{branchId?}', [BranchController::class, 'showTransaction'])->name('transaction.show');
@@ -43,8 +48,23 @@ Route::middleware(['auth', RoleMiddleware::class . ':owner'])->group(function ()
     Route::get('/owner/informasi', [BranchController::class, 'informationBranch'])->name('owner.informasi');
 });
 
+
 Route::middleware(['auth', RoleMiddleware::class . ':manager'])->group(function () {
-    
+    // Route::get('/dashboard/informasi-cabang', [BranchController::class, 'informationBranchRole'])->name('manager.informasi_cabang');
 });
+
+// Route::middleware(['auth', RoleMiddleware::class . ':supervisor'])->group(function () {
+//     Route::get('/dashboard/{branchId?}', [BranchController::class, 'dashboardRole'])->name('supervisor.dashboard');
+// });
+
+// Route::middleware(['auth', RoleMiddleware::class . ':cashier'])->group(function () {
+//     Route::get('/dashboard/{branchId?}', [BranchController::class, 'dashboardRole'])->name('cashier.dashboard');
+// });
+
+// Route::middleware(['auth', RoleMiddleware::class . ':warehouse'])->group(function () {
+//     Route::get('/dashboard/{branchId?}', [BranchController::class, 'dashboardRole'])->name('warehouse.dashboard');
+// });
+
+// Route::get('/dashboard', [BranchController::class, 'redirectDashboard'])->name('dashboard');
 
 require __DIR__.'/auth.php';

@@ -27,26 +27,29 @@ class AutentikasiController extends Controller
      */
     public function store(Request $request)
     {
-        // $request->authenticate();
-        // $request->session()->regenerate();
+        $this->validateLogin($request);
 
-        // $user = Auth::user();
-        // session([
-        //     'branchId' => $user->id_cabang,
-        //     'role' => $user->peran,
-        // ]);
+    // if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
+    //     $user = Auth::user();
 
-        // if ($user->peran === 'manager') {
-        //     return redirect()->route('manager.dashboard', ['branchId' => $user->id_cabang]);
-        // } elseif ($user->peran === 'supervisor') {
-        //     return redirect()->route('supervisor.dashboard', ['branchId' => $user->id_cabang]);
-        // } elseif ($user->peran === 'cashier') {
-        //     return redirect()->route('cashier.dashboard', ['branchId' => $user->id_cabang]);
-        // }elseif ($user->peran === 'warehouse') {
-        //     return redirect()->route('warehouse.dashboard', ['branchId' => $user->id_cabang]);
-        // }
+    //     if ($user->hasRole('owner')) {
+    //         return redirect()->route('owner.dashboard');
+    //     } elseif ($user->hasRole('manager')) {
+    //         return redirect()->route('branch.dashboard', ['branchId' => $user->id_cabang]);
+    //     } elseif ($user->hasRole('supervisor')) {
+    //         return redirect()->route('branch.stock', ['branchId' => $user->id_cabang]);
+    //     } elseif ($user->hasRole('cashier')) {
+    //         return redirect()->route('branch.transaction', ['branchId' => $user->id_cabang]);
+    //     } elseif ($user->hasRole('warehouse')) {
+    //         return redirect()->route('branch.inventory', ['branchId' => $user->id_cabang]);
+    //     }
 
-        // return redirect()->route('dashboard');
+    //     return redirect('/dashboard');
+    // }
+
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ]);
     }
 
     /**
