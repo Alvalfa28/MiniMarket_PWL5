@@ -24,12 +24,17 @@
                         </a>
                     @endhasrole
                     
-                    @hasrole('owner|manager|supervisor|warehouse')
+                    @hasrole('owner|manager|warehouse')
                         <a href="{{ route('stock.index', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Produk
                         </a>
                     @endhasrole
-                    @hasrole('owner|manager|supervisor|cashier')
+                    @hasrole('cashier')
+                        <a href="{{ route('transaksi.create', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            Penjualan
+                        </a>
+                    @endhasrole
+                    @hasrole('owner|manager|supervisor')
                         <a href="{{ route('transaksi.index', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Transaksi
                         </a>
@@ -90,26 +95,33 @@
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">                           
                             Kembali
                         </a>
-                        @auth
+                        <!-- @auth
                             @hasrole('cashier')
-                                <a href="{{ route('stock.create', ['branchId' => $branchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
+                                <a href="{{ route('transaksi.create', ['branchId' => $branchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
                                     Tambah Data
                                 </a>
                             @endhasrole
-                        @endauth
-                        <a href="#" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
+                        @endauth -->
+                        @auth
+                        @hasrole('owner|manager|supervisor')
+                            <!-- <a href="{{ route('transaksi.create', ['branchId' => $branchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
+                                Tambah Data
+                            </a> -->
+                        <a href="{{ route('transactions.export.pdf', $branch->id_cabang) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
                             Unduh PDF
                         </a>
-                        <a href="#" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
+                        <a href="{{ route('transactions.export.excel', $branch->id_cabang) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
                             Unduh Excel
                         </a>
+                        @endhasrole
+                        @endauth
                     </div>
                     <hr/>
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white dark:bg-gray-800">
                             <thead>
                                 <tr>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">#</th>
+                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">No</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Kasir</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Produk</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Kategori</th>
@@ -117,7 +129,7 @@
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Jumlah</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Subtotal</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Tanggal Transaksi</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Aksi</th>
+                                    <!-- <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Aksi</th> -->
                                 </tr>
                             </thead>
                             <tbody>

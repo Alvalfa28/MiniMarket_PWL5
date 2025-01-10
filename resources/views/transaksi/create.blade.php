@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JayusMart</title>
+    <title>Tambah Transaksi</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900">
@@ -17,28 +17,26 @@
                     @php
                         $branchId = request()->route('branchId');
                     @endphp
-                    
                     @hasrole('manager')
                         <a href="{{ route('manager.informasi_cabang') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Informasi Cabang
                         </a>
                     @endhasrole
-
-                    <!-- @hasrole('owner|manager|supervisor|warehouse')
+                    @hasrole('owner|manager|supervisor|warehouse')
                         <a href="{{ route('stock.index', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Produk
                         </a>
-                    @endhasrole -->
+                    @endhasrole
                     @hasrole('cashier')
                         <a href="{{ route('transaksi.create', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Penjualan
                         </a>
                     @endhasrole
-                    <!-- @hasrole('owner|manager|supervisor')
-                        <a href="{{ route('transaksi.index', ['branchId' => request()->route('branchId')]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    @hasrole('owner|manager|supervisor')
+                        <a href="{{ route('transaksi.index', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Transaksi
                         </a>
-                    @endhasrole -->
+                    @endhasrole
                 @endauth
             </div>
         </div>
@@ -81,8 +79,51 @@
             <!-- Content -->
             <main class="py-6 px-4">
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Welcome, {{ Auth::user()->nama_user }}!</h1>
-                    <p class="mt-4 text-gray-600 dark:text-gray-400">Selamat Bekerja</p>
+                <div class="mb-8">
+                    <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">                           
+                        Kembali
+                    </a>
+                </div>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Tambah Transaksi </h1>
+                    <p class="mt-4 text-gray-600 dark:text-gray-400">Form untuk menambah transaksi baru </p>
+                    
+                    <form action="{{ route('transaksi.store') }}" method="POST" class="mt-6">
+                        @csrf
+                        <div class="space-y-4">
+                            <!-- Kasir -->
+                            <div>
+                                <label for="kasir" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Kasir</label>
+                                <select id="kasir" name="kasir_id" class="mt-1 block w-full rounded-md border-gray-300 dark:bg-gray-800 dark:text-gray-200">
+                                    <option value="{{ Auth::user()->id }}" selected>{{ Auth::user()->nama_user }}</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="produk" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Produk</label>
+                                <select id="produk" name="produk_id" class="mt-1 block w-full rounded-md border-gray-300 dark:bg-gray-800 dark:text-gray-200">
+                                    @foreach ($produk as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama_produk }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="jumlah" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jumlah</label>
+                                <input type="number" id="jumlah" name="jumlah" min="1" class="mt-1 block w-full rounded-md border-gray-300 dark:bg-gray-800 dark:text-gray-200" required>
+                            </div>
+
+                            <div>
+                                <label for="tanggal_transaksi" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Transaksi</label>
+                                <input type="datetime-local" id="tanggal_transaksi" name="tanggal_transaksi" class="mt-1 block w-full rounded-md border-gray-300 dark:bg-gray-800 dark:text-gray-200" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
+                            <button type="submit" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
+                                Simpan Transaksi
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </main>
         </div>
@@ -90,10 +131,9 @@
 
     <script>
         function toggleDropdown() {
-            const dropdown = document.getElementById('dropdownMenu');
-            dropdown.classList.toggle('hidden');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            dropdownMenu.classList.toggle('hidden');
         }
     </script>
-
 </body>
 </html>

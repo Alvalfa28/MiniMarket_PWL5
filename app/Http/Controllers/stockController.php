@@ -16,7 +16,7 @@ class stockController extends Controller
     $branch = BranchModel::findOrFail($branchId);
     $stocks = StokModel::where('id_cabang', $branchId)->with('produk')->get();
 
-    $pdf = Pdf::loadView('stok.pdf', compact('branch', 'stocks'));
+    $pdf = Pdf::loadView('stock.pdf', compact('branch', 'stocks'));
     return $pdf->download('data_stok_' . $branch->alias . '.pdf');
 }
 

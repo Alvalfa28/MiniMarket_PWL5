@@ -8,6 +8,7 @@ use App\Models\CategoryModel;
 use Illuminate\Http\Request;
 use App\Models\ProdukModel;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class produkController extends Controller
 {
@@ -34,6 +35,7 @@ class produkController extends Controller
         $categories = CategoryModel::all(); 
     
         return view('stock.create', compact('branchId', 'categories'));
+        // return view('stock.create', compact('categories'));
     }
 
     /**
@@ -41,35 +43,29 @@ class produkController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'nama_produk' => 'required|string|max:255',
-            'id_kategori' => 'required|exists:categories,id',
-            'harga_produk' => 'required|numeric|min:0',
-            'jumlah_stok' => 'required|integer|min:1',
-        ]);
-    
-        \Log::debug('Validated Data:', $validatedData);
+        $id = Auth::user()->id_cabang;
+        $produk = new ProdukModel();
+        $kategori = $request->id_kategori;
+        if($kategori == 'Makanan'){
+            $cate = 'food';
+        }
+        if($kategori == 'Minuman'){
+            $cate = 'drink';
+        }
+        $stok = new StokModel();
+        $produk->nama_produk = $request->nama_produk;
+        $produk->id_kategori = $cate;
+        $produk->harga_produk = $request->harga_produk;
+        $produk->save();
+        $stok->id_produk = $produk->id;
+        $stok->id_cabang = $id;
+        $stok->nama_produk = $request->nama_produk;
+        $stok->jumlah_stok = $request->jumlah_stok;
+        $stok->last_updated = Carbon::now();
         
-        $branchId = auth()->user()->id_cabang;
+        $stok->save();
     
-        $produk = ProdukModel::create([
-            'nama_produk' => $validatedData['nama_produk'],
-            'id_kategori' => $validatedData['id_kategori'],
-            'harga_produk' => $validatedData['harga_produk'],
-        ]);
-    
-        $stok = StokModel::create([
-            'id_produk' => $produk->id,
-            'id_cabang' => $branchId,
-            'nama_produk' => $validatedData['nama_produk'],
-            'jumlah_stok' => $validatedData['jumlah_stok'],
-            'last_updated' => Carbon::now(),
-        ]);
-    
-        \Log::debug('Produk Saved:', $produk->toArray());
-        \Log::debug('Stok Saved:', $stok->toArray());
-    
-        return redirect()->route('stock.index', ['branchId' => $branchId])
+        return redirect()->route('stock.index')
             ->with('success', 'Stok produk berhasil ditambahkan.');
     }
 
@@ -84,24 +80,53 @@ class produkController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($branchId, $stockId)
     {
-        //
+        $stok = StokModel::with('produk')->where('id_cabang', $branchId)->findOrFail($stockId);
+        $categories = CategoryModel::all(); 
+        return view('stock.edit', compact('stok', 'categories'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $branchId, $stockId)
     {
-        //
+        $validated = $request->validate([
+            'nama_produk' => 'required|string|max:255',
+            'harga_produk' => 'required|numeric',
+            'jumlah_stok' => 'required|numeric',
+            'id_kategori' => 'required|string',
+        ]);
+    
+        $stok = StokModel::with('produk')->where('id_cabang', $branchId)->findOrFail($stockId);
+        $produk = $stok->produk; 
+    
+        $produk->nama_produk = $request->nama_produk;
+        $produk->id_kategori = $request->id_kategori;
+        $produk->harga_produk = $request->harga_produk;
+        $produk->save();
+    
+        $stok->jumlah_stok = $request->jumlah_stok;
+        $stok->last_updated = Carbon::now();
+        $stok->save();
+    
+        return redirect()->route('stock.index')
+            ->with('success', 'Stok produk berhasil diperbarui.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($branchId, $stockId)
     {
-        //
+        $stok = StokModel::where('id_cabang', $branchId)->findOrFail($stockId);
+        $produk = $stok->produk; 
+
+        $stok->delete();
+        $produk->delete();
+
+        return redirect()->route('stock.index')
+            ->with('success', 'Stok produk berhasil dihapus.');
     }
 }

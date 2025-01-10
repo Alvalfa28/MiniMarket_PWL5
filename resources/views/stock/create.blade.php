@@ -57,7 +57,7 @@
                     <br>
                     <a href="{{ route('stock.index', ['branchId' => $branchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">Kembali</a>
                     
-                    <form action="{{ route('stock.store', ['branchId' => $branchId]) }}" method="POST" class="mt-6 space-y-4">
+                    <form action="{{ route('stock.store') }}" method="POST" class="mt-6 space-y-4">
                         @csrf
                         <input type="hidden" name="branchId" value="{{ $branchId }}">
                         <div>
@@ -70,7 +70,7 @@
                             <select name="id_kategori" id="id_kategori" class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
                                 <option value="">Pilih Kategori</option>
                                 @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->nama_kategori }}</option>
+                                    <option value="{{ $category->nama_kategori }}">{{ $category->nama_kategori }}</option>
                                 @endforeach
                             </select>
                         </div>

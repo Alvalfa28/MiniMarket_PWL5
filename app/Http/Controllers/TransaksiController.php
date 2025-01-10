@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Exports\TransactionsExport;
 use App\Models\BranchModel;
+use App\Models\DetailTransaksiModel;
+use App\Models\ProdukModel;
 use App\Models\TransaksiModel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TransaksiController extends Controller
@@ -30,7 +33,13 @@ class TransaksiController extends Controller
      */
     public function create()
     {
-        //
+        $branchId = auth()->user()->id_cabang;
+    
+        $produk = ProdukModel::whereHas('stokProduk', function($query) use ($branchId) {
+            $query->where('id_cabang', $branchId);
+        })->get();
+
+        return view('transaksi.create', compact('branchId', 'produk'));
     }
 
     /**
@@ -38,7 +47,42 @@ class TransaksiController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $id_cabang = Auth::user()->id_cabang;
+        
+        $validated = $request->validate([
+            'tanggal_transaksi' => 'required|date',
+            'produk' => 'required|array',
+            'produk.*.id' => 'required|exists:produk,id',
+            'produk.*.jumlah' => 'required|numeric|min:1',
+        ]);
+
+        $transaksi = new TransaksiModel();
+        $transaksi->id_cabang = $id_cabang;
+        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+        $transaksi->total_harga = 0; 
+        $transaksi->kasir_id = Auth::user()->id; 
+        $transaksi->save();
+
+        $totalHarga = 0;
+        foreach ($request->produk as $produkData) {
+            $produk = ProdukModel::findOrFail($produkData['id']);
+            $harga = $produk->harga_produk * $produkData['jumlah'];
+
+            $transaksiDetail = new DetailTransaksiModel();
+            $transaksiDetail->transaksi_id = $transaksi->id;
+            $transaksiDetail->produk_id = $produk->id;
+            $transaksiDetail->jumlah = $produkData['jumlah'];
+            $transaksiDetail->harga = $harga;
+            $transaksiDetail->save();
+
+            $totalHarga += $harga; 
+        }
+
+        $transaksi->total_harga = $totalHarga;
+        $transaksi->save();
+
+        return redirect()->route('transaksi.create')
+            ->with('success', 'Transaksi berhasil ditambahkan.');
     }
 
     /**

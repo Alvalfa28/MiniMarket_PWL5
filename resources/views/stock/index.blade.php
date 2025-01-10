@@ -24,19 +24,19 @@
                         </a>
                     @endhasrole
 
-                    @hasrole('cashier')
+                    <!-- @hasrole('cashier')
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Penjualan
                         </a>
-                    @endhasrole
+                    @endhasrole -->
                     
                     @hasrole('owner|manager|supervisor|warehouse')
                         <a href="{{ route('stock.index', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Produk
                         </a>
                     @endhasrole
-                    @hasrole('owner|manager|supervisor|cashier')
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    @hasrole('owner|manager|supervisor')
+                        <a href="{{ route('transaksi.index', ['branchId' => request()->route('branchId')]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Transaksi
                         </a>
                     @endhasrole
@@ -82,7 +82,7 @@
             <!-- Content -->
             <main class="py-6 px-4">
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Stok Produk</h1>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Stok Produk untuk {{ $branch->alias }}</h1>
                     <p class="mt-4 text-gray-600 dark:text-gray-400">Daftar stok produk yang tersedia di cabang Anda.</p>
                     <br>
                     <div class="mb-8">
@@ -95,25 +95,35 @@
                                     Tambah Data
                                 </a>
                             @endhasrole
-                        @endauth
-                        <a href="#" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
+                        @hasrole('owner|manager')
+                        <a href="{{ route('stock.export.pdf', $branch->id_cabang) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
                             Unduh PDF
                         </a>
-                        <a href="#" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
+                        <a href="{{ route('stock.export.excel', $branch->id_cabang) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
                             Unduh Excel
                         </a>
+                        @endhasrole
+                        @endauth
                     </div>
                     <hr/>
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white dark:bg-gray-800">
                             <thead>
                                 <tr>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">#</th>
+                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">No</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Produk</th>
+                                    @auth
+                                    @hasrole('warehouse|owner|manager')
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Kategori</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Stok</th>
+                                    @endhasrole
+                                    @endauth
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Harga Produk</th>
+                                    @auth
+                                    @hasrole('warehouse')
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Action</th>
+                                    @endhasrole
+                                    @endauth
                                 </tr>
                             </thead>
                             <tbody>
@@ -121,13 +131,26 @@
                                 <tr>
                                     <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ ($stocks->perPage() * ($stocks->currentPage()-1)) + $loop->iteration }}</td>
                                     <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $stock->nama_produk }}</td>
+                                    @auth
+                                    @hasrole('warehouse|owner|manager')
                                     <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $stock->produk->id_kategori }}</td>
                                     <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $stock->jumlah_stok }}</td>
+                                    @endhasrole
+                                    @endauth
                                     <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">Rp {{ number_format($stock->produk->harga_produk, 2) }}</td>
+                                    @auth
+                                    @hasrole('warehouse')
                                     <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">
-                                        {{-- <a href="{{ route('stok.edit', $stock->id) }}" class="bg-blue-500 text-white py-1 px-3 rounded">Edit</a> --}}
-                                        {{-- <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-stock-deletion')" x-on:click="$dispatch('set-action', '{{ route('stok.destroy', $stock->id) }}')" class="bg-red-500 text-white py-1 px-3 rounded">Hapus</button> --}}
+                                        <!-- <a href="route('stock.edit', ['branchId' => $branchId, 'stockId' => $stock->id])" class="bg-blue-500 text-white py-1 px-3 rounded">
+                                            Edit
+                                        </a> -->
+                                        <a href="#" class="bg-blue-500 text-white py-1 px-3 rounded">Edit</a> 
+                                        <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-stock-deletion')" x-on:click="$dispatch('set-action', '{{ route('stock.destroy', $stock->id) }}')" class="bg-red-500 text-white py-1 px-3 rounded">
+                                            Hapus
+                                        </button>
                                     </td>
+                                    @endhasrole
+                                    @endauth
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -135,32 +158,30 @@
                     </div>
                     {{ $stocks->links() }}
 
-                    <!-- MODAL -->
                     <x-modal name="confirm-stock-deletion" :show="$errors->stockDeletion->isNotEmpty()" focusable>
-                        <form method="post" x-bind:action="action" class="p-6">
+                        <form method="POST" x-bind:action="action" class="p-6">
                             @csrf
-                            @method('delete')
-                
+                            @method('DELETE')
+
                             <h2 class="text-lg font-medium text-gray-900">
                                 {{ __('Apakah anda yakin akan menghapus data stok?') }}
                             </h2>
-                
+
                             <p class="mt-1 text-sm text-gray-600">
                                 {{ __('Setelah anda melakukan proses hapus, data tidak dapat dikembalikan.') }}
                             </p>
-                
+
                             <div class="mt-6 flex justify-end">
                                 <x-secondary-button x-on:click="$dispatch('close')">
                                     {{ __('Batal') }}
                                 </x-secondary-button>
-                
+
                                 <x-danger-button class="ms-3">
                                     {{ __('Ya, Hapus Saja!') }}
                                 </x-danger-button>
                             </div>
                         </form>
                     </x-modal>
-                    <!-- MODAL END -->
                 </div>
             </main>
         </div>
