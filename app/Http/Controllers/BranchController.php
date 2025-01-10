@@ -78,9 +78,9 @@ class BranchController extends Controller
         $branch = BranchModel::findOrFail($branchId);
         $stocks = StokModel::with(['produk.kategori'])
                     ->where('id_cabang', $branchId)
-                    ->get();
+                    ->paginate(10);
 
-        return view('stok.index', compact('branch', 'stocks'));
+        return view('stock.index', compact('branch', 'stocks'));
     }
 
     public function redirectDashboard()
@@ -115,7 +115,7 @@ class BranchController extends Controller
         $branch = BranchModel::findOrFail($branchId);
         $transactions = TransaksiModel::with('kasir', 'transaksiDetail.produk.kategori')
                                 ->where('id_cabang', $branch->id_cabang)
-                                ->get();
+                                ->paginate(10);
 
         return view('transaksi.index', compact('branch', 'transactions'));
     }

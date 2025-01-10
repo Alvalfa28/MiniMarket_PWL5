@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Transaksi</title>
+    <title>Stok Produk</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900">
@@ -23,6 +23,12 @@
                             Informasi Cabang
                         </a>
                     @endhasrole
+
+                    @hasrole('cashier')
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            Penjualan
+                        </a>
+                    @endhasrole
                     
                     @hasrole('owner|manager|supervisor|warehouse')
                         <a href="{{ route('stock.index', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -30,7 +36,7 @@
                         </a>
                     @endhasrole
                     @hasrole('owner|manager|supervisor|cashier')
-                        <a href="{{ route('transaksi.index', ['branchId' => $branchId]) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             Transaksi
                         </a>
                     @endhasrole
@@ -76,22 +82,15 @@
             <!-- Content -->
             <main class="py-6 px-4">
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Data Transaksi untuk {{ $branch->alias }}</h1>
-                    <p class="mt-4 text-gray-600 dark:text-gray-400">Daftar transaksi yang terjadi di cabang ini.</p>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Stok Produk</h1>
+                    <p class="mt-4 text-gray-600 dark:text-gray-400">Daftar stok produk yang tersedia di cabang Anda.</p>
                     <br>
                     <div class="mb-8">
-                        {{-- <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">                           
-                            Kembali
-                        </a>
-                        <div class="flex justify-end space-x-4">
-                            <a href="{{ route('transactions.export.pdf', $branch->id_cabang) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">Unduh PDF</a>
-                            <a href="{{ route('transactions.export.excel', $branch->id_cabang) }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring focus:ring-green-300 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-700">Unduh Excel</a>
-                        </div> --}}
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">                           
                             Kembali
                         </a>
                         @auth
-                            @hasrole('cashier')
+                            @hasrole('warehouse')
                                 <a href="{{ route('stock.create', ['branchId' => $branchId]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700">
                                     Tambah Data
                                 </a>
@@ -110,35 +109,58 @@
                             <thead>
                                 <tr>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">#</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Kasir</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Produk</th>
                                     <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Kategori</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Harga Satuan</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Jumlah</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Subtotal</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Tanggal Transaksi</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Aksi</th>
+                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Stok</th>
+                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Harga Produk</th>
+                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @php $counter = 1; @endphp
-                                @foreach ($transactions as $transaction)
-                                    @foreach ($transaction->transaksiDetail as $detail)
-                                        <tr>
-                                            <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $counter++ }}</td>
-                                            <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $transaction->kasir->nama_user }}</td>
-                                            <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $detail->produk->nama_produk }}</td>
-                                            <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $detail->produk->id_kategori }}</td>
-                                            <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">Rp {{ number_format($detail->harga_satuan, 2) }}</td>
-                                            <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $detail->jumlah }}</td>
-                                            <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">Rp {{ number_format($detail->subtotal, 2) }}</td>
-                                            <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $transaction->tanggal_transaksi->format('d-m-Y H:i') }}</td>
-                                        </tr>
-                                    @endforeach
+                                @foreach ($stocks as $index => $stock)
+                                <tr>
+                                    <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ ($stocks->perPage() * ($stocks->currentPage()-1)) + $loop->iteration }}</td>
+                                    <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $stock->nama_produk }}</td>
+                                    <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $stock->produk->id_kategori }}</td>
+                                    <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">{{ $stock->jumlah_stok }}</td>
+                                    <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">Rp {{ number_format($stock->produk->harga_produk, 2) }}</td>
+                                    <td class="py-2 px-4 text-sm text-gray-700 dark:text-gray-200">
+                                        {{-- <a href="{{ route('stok.edit', $stock->id) }}" class="bg-blue-500 text-white py-1 px-3 rounded">Edit</a> --}}
+                                        {{-- <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-stock-deletion')" x-on:click="$dispatch('set-action', '{{ route('stok.destroy', $stock->id) }}')" class="bg-red-500 text-white py-1 px-3 rounded">Hapus</button> --}}
+                                    </td>
+                                </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
+                    {{ $stocks->links() }}
+
+                    <!-- MODAL -->
+                    <x-modal name="confirm-stock-deletion" :show="$errors->stockDeletion->isNotEmpty()" focusable>
+                        <form method="post" x-bind:action="action" class="p-6">
+                            @csrf
+                            @method('delete')
+                
+                            <h2 class="text-lg font-medium text-gray-900">
+                                {{ __('Apakah anda yakin akan menghapus data stok?') }}
+                            </h2>
+                
+                            <p class="mt-1 text-sm text-gray-600">
+                                {{ __('Setelah anda melakukan proses hapus, data tidak dapat dikembalikan.') }}
+                            </p>
+                
+                            <div class="mt-6 flex justify-end">
+                                <x-secondary-button x-on:click="$dispatch('close')">
+                                    {{ __('Batal') }}
+                                </x-secondary-button>
+                
+                                <x-danger-button class="ms-3">
+                                    {{ __('Ya, Hapus Saja!') }}
+                                </x-danger-button>
+                            </div>
+                        </form>
+                    </x-modal>
+                    <!-- MODAL END -->
                 </div>
             </main>
         </div>
@@ -146,8 +168,8 @@
 
     <script>
         function toggleDropdown() {
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            dropdownMenu.classList.toggle('hidden');
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('hidden');
         }
     </script>
 

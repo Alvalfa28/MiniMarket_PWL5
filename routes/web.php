@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\stockController;
+use App\Http\Controllers\produkController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\UnduhLaporan;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,8 @@ Route::middleware(['auth'])->group(function() {
     Route::get('/dashboard/supervisor', [BranchController::class, 'dashboardRole'])->name('dashboard.supervisor');
     Route::get('/dashboard/cashier', [BranchController::class, 'dashboardRole'])->name('dashboard.cashier'); 
     Route::get('/dashboard/warehouse', [BranchController::class, 'dashboardRole'])->name('dashboard.warehouse'); 
+    Route::get('/stok/{branchId?}', [produkController::class, 'index'])->name('stock.index');
+    Route::get('/transaksi/{branchId?}', [TransaksiController::class, 'index'])->name('transaksi.index');
 });
 
 
@@ -39,8 +42,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', RoleMiddleware::class . ':owner'])->group(function () {
     // Route::get('/dashboard', [BranchController::class, 'dashboardOwner'])->name('dashboard');
     Route::get('/dashboard/{branchId}', [BranchController::class, 'dashboard'])->name('owner.dashboard');
-    Route::get('/stok/{branchId?}', [BranchController::class, 'showStock'])->name('stock.show');
-    Route::get('/transaksi/{branchId?}', [BranchController::class, 'showTransaction'])->name('transaction.show');
+    Route::get('/owner/stok/{branchId?}', [BranchController::class, 'showStock'])->name('stock.show');
+    Route::get('/owner/transaksi/{branchId?}', [BranchController::class, 'showTransaction'])->name('transaction.show');
     Route::get('/transaksi/{branchId}/export/excel', [TransaksiController::class, 'exportToExcel'])->name('transactions.export.excel');
     Route::get('/transaksi/{branchId}/export/pdf', [TransaksiController::class, 'exportToPdf'])->name('transactions.export.pdf');
     Route::get('/stok/{branchId}/export/pdf', [stockController::class, 'exportPdf'])->name('stock.export.pdf');
@@ -61,9 +64,11 @@ Route::middleware(['auth', RoleMiddleware::class . ':manager'])->group(function 
 //     Route::get('/dashboard/{branchId?}', [BranchController::class, 'dashboardRole'])->name('cashier.dashboard');
 // });
 
-// Route::middleware(['auth', RoleMiddleware::class . ':warehouse'])->group(function () {
-//     Route::get('/dashboard/{branchId?}', [BranchController::class, 'dashboardRole'])->name('warehouse.dashboard');
-// });
+Route::middleware(['auth', RoleMiddleware::class . ':warehouse'])->group(function () {
+    Route::get('/stock/create', [produkController::class, 'create'])->name('stock.create');
+    Route::post('/stok/store', [produkController::class, 'store'])->name('stock.store');
+    Route::get('/stok/{branchId}/stock/{stockId}/edit', [produkController::class, 'edit'])->name('stock.edit');
+});
 
 // Route::get('/dashboard', [BranchController::class, 'redirectDashboard'])->name('dashboard');
 

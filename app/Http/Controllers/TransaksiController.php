@@ -16,7 +16,13 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        
+        $branchId = auth()->user()->id_cabang;
+        $branch = BranchModel::findOrFail($branchId);
+        $transactions = TransaksiModel::with('kasir', 'transaksiDetail.produk.kategori')
+                                ->where('id_cabang', $branch->id_cabang)
+                                ->paginate(10);
+
+        return view('transaksi.index', compact('branch', 'transactions'));
     }
 
     /**

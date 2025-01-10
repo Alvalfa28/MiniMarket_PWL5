@@ -91,12 +91,8 @@
                     @endhasrole
                 @endif
                 @if ($branchId)
-                    @hasrole('cashier')
-                        <x-responsive-nav-link href="#">Penjualan</x-responsive-nav-link>
-                    @endhasrole
-
                     @hasrole('owner|manager|supervisor|warehouse')
-                    <x-responsive-nav-link :href="route('stock.show', ['branchId' => $branchId])">
+                    <x-responsive-nav-link href="{{ route('stock.show', ['branchId' => request()->route('branchId')]) }}">
                         Produk
                     </x-responsive-nav-link>
                     @endhasrole
